@@ -48,11 +48,11 @@ int main(int argc, char *argv[])
         printf("Please enter the message: ");
         bzero(buffer,256);                              // clear buffer
         fgets(buffer,255,stdin);                        // place input from user into buffer
-        n = write(sockfd,buffer,strlen(buffer));        // write buffer's contents into sockfd (file descriptor) (for transmit)
+        n = write(sockfd,buffer,strlen(buffer));        // write buffer's contents into sockfd (file descriptor) for transmission
         if (n < 0)
             error("ERROR writing to socket");
         bzero(buffer,256);                              // clear buffer
-        n = read(sockfd,buffer,255);                    // place contents from sockfd into buffer (for receive)
+        n = read(sockfd,buffer,255);                    // place contents from sockfd into buffer (acknowlegement from server)
         if (n < 0)
             error("ERROR reading from socket");
         printf("%s\n",buffer);                          // prints output to user

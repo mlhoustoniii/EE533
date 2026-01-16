@@ -15,7 +15,7 @@ void error(char *msg)
     exit(1);
 }
 
-int dostuff(int newsockfd, int cli_pid);
+int dostuff(int newsockfd, int cli_pid);        // function prototype
 
 int main(int argc, char *argv[])
 {
@@ -40,9 +40,10 @@ int main(int argc, char *argv[])
     listen(sockfd,5);                          // listen on the socket for connections; 5 is maximum backlog queue of waiting connections
     clilen = sizeof(cli_addr);
     
+    signal(SIGCHLD,SIG_IGN);                // prevents child processes from becoming zombies
     while (1)                                   // continuously accepts new connections as they come in
     {
-        newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr, &clilen);
+        newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr, &clilen);  // open streaming socket
         if (newsockfd < 0)
             error("ERROR on accept");
         pid = fork();                               // fork (create) child process from parent
@@ -50,23 +51,19 @@ int main(int argc, char *argv[])
             error("ERROR on fork");
         if (pid == 0)                               // instructions for child to exectute
         {
-            close(sockfd);                          // child closes sockfd (listening socket)
+            close(sockfd);                          // child closes sockfd (listening socket), as it is unnecessary 
             cli_pid = getpid();
-            dostuff(newsockfd, cli_pid);                     // child calls dostuff
-            exit(0);                                // exits upon handling of client
+            dostuff(newsockfd, cli_pid);            // child calls dostuff (which will handle the communication)
+            exit(0);                                // exits upon disconnection of client
         }
         else                                        // code for parent to execute, after calling child
-            close(newsockfd);                       // parent closes newsockfd; goes back to accept to wait for new client
+            close(newsockfd);                       // parent closes newsockfd, as it does not talk to the client; goes back to accept to wait for new client (listening socket continues)
     } /* end of while */
+    close(sockfd);
     return 0;
 } /*end of main*/
     
-//     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen); // when client connection established, returns new file descriptor
-//    //  signal(SIGCHLD,SIG_IGN);                    // prevents process becoming a zombie
-//     if (newsockfd < 0)
-//          error("ERROR on accept");
-    
-int dostuff(int newsockfd, int cli_pid)
+int dostuff(int newsockfd, int cli_pid)                     // function description
 {
     char buffer[256];
     int n;
@@ -75,7 +72,7 @@ int dostuff(int newsockfd, int cli_pid)
         bzero(buffer,256);
         n = read(newsockfd,buffer,255);                    // reads string into buffer from the socket
         if (n < 0) error("ERROR reading from socket");
-        printf("Here is the message: %s\nFrom: %d\n",buffer, cli_pid);        // displays received data
+        printf("Here is the message: %s\nFrom: %d\n",buffer, cli_pid);        // displays received data and passes in the child's process ID
         n = write(newsockfd,"I got your message",18);      // sends auto response to client, if transmission was a success
         if (n < 0) error("ERROR writing to socket");
     }
