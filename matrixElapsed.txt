@@ -1,0 +1,10 @@
+CPU execution time (N=16): 0.000005 seconds
+CPU execution time (N=32): 0.000020 seconds
+CPU execution time (N=64): 0.000204 seconds
+CPU execution time (N=128): 0.002157 seconds
+CPU execution time (N=256): 0.018531 seconds
+CPU execution time (N=512): 0.148958 seconds
+CPU execution time (N=1024): 1.335819 seconds
+CPU execution time (N=2048): 27.925216 seconds
+CPU execution time (N=4096): 275.170076 seconds
+CPU execution time (N=8192): 2124.424869 seconds
